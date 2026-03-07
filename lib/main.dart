@@ -1,6 +1,35 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // On desktop platforms (Linux, macOS, Windows), hide the native OS title bar
+  // so that the Flutter WindowChrome acts as the window title bar.
+  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+    try {
+      await windowManager.ensureInitialized();
+
+      const windowOptions = WindowOptions(
+        size: Size(1280, 800),
+        minimumSize: Size(640, 480),
+        center: true,
+        backgroundColor: Colors.transparent,
+        skipTaskbar: false,
+        titleBarStyle: TitleBarStyle.hidden,
+      );
+
+      await windowManager.waitUntilReadyToShow(windowOptions, () async {
+        await windowManager.show();
+        await windowManager.focus();
+      });
+    } catch (_) {
+      // In headless test environments or when running tests, gracefully continue
+    }
+  }
+
   runApp(const NoteFlowApp());
 }
 
