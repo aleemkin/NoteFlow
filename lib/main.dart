@@ -1,14 +1,15 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'package:noteflow/core/platform/app_platform.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppPlatform.initializePaths();
 
   // On desktop platforms (Linux, macOS, Windows), hide the native OS title bar
   // so that the Flutter WindowChrome acts as the window title bar.
-  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+  if (AppPlatform.isDesktop) {
     try {
       await windowManager.ensureInitialized();
 
