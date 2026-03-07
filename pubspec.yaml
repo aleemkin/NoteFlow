@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # SVG rendering for app icons
+  flutter_svg: ^2.1.0
+
   # Window manager for desktop custom chrome
   window_manager: ^0.5.2
 
@@ -20,3 +23,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icons/
+    - assets/icons/svg/
