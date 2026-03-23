@@ -23,6 +23,7 @@ class VaultTreeRepository extends ChangeNotifier {
     for (final entry in entries) {
       final segments = entry.uri.path.split('/');
       // Filter out hidden files and internal application directories (e.g. .kn, .git, .DS_Store)
+      if (segments.any((s) => s.startsWith('.'))) continue;
       // Filter out internal drawing snapshots saved in PNG (e.g. .excalidraw.png)
       if (VaultTreeNode.isDrawingSnapshot(entry.uri.path)) continue;
 
