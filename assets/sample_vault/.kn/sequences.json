@@ -1,0 +1,16 @@
+{
+  "": [
+    "01_Welcome_to_noteflow.md",
+    "02_Quick_Start_and_Shortcuts.md",
+    "03_Starting_Your_Own_Vault.md"
+  ],
+  "01_Guides": [
+    "01_Guides/Continuous_Reading.md",
+    "01_Guides/Split_Editor_Workflow.md",
+    "01_Guides/Document_Outline_and_Reorder.md"
+  ],
+  "02_Architecture": [
+    "02_Architecture/System_Architecture.md",
+    "02_Architecture/system_architecture.excalidraw"
+  ]
+}

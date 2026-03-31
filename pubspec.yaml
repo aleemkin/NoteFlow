@@ -20,6 +20,9 @@ dependencies:
   # UUID generation (v7 for time-ordered IDs)
   uuid: ^4.5.1
 
+  # File picker for vault selection
+  file_picker: ^8.1.7
+
   # File system watching
   watcher: ^1.1.1
 
@@ -39,3 +42,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/icons/svg/
+    - assets/sample_vault/
+    - assets/sample_vault/01_Guides/
+    - assets/sample_vault/02_Architecture/
+    - assets/sample_vault/.kn/
