@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Markdown parsing
+  markdown: ^7.3.0
+
   # Path manipulation
   path: ^1.9.1
   path_provider: ^2.1.5
