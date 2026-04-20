@@ -193,7 +193,7 @@ class _ContinuousFolderSurfaceState extends State<ContinuousFolderSurface> {
                 child: ListView.builder(
                   controller: widget.scrollController,
                   // ignore: deprecated_member_use
-                  cacheExtent: 250,
+                  cacheExtent: 10000,
                   padding: EdgeInsets.symmetric(
                     horizontal: hPadding,
                     vertical: vPadding,
