@@ -29,7 +29,11 @@ dependencies:
   # File system watching
   watcher: ^1.1.1
 
-  # SVG rendering for app icons
+  # Desktop WebView for official Excalidraw engine
+  webview_all: ^1.4.1
+  webview_all_android: ^1.4.1
+
+  # SVG rendering for Excalidraw read-only previews
   flutter_svg: ^2.1.0
 
   # Window manager for desktop custom chrome
@@ -45,6 +49,18 @@ flutter:
   assets:
     - assets/icons/
     - assets/icons/svg/
+    - assets/excalidraw/
+    - assets/excalidraw/assets/
+    - assets/excalidraw/fonts/
+    - assets/excalidraw/fonts/Assistant/
+    - assets/excalidraw/fonts/Cascadia/
+    - assets/excalidraw/fonts/ComicShanns/
+    - assets/excalidraw/fonts/Excalifont/
+    - assets/excalidraw/fonts/Liberation/
+    - assets/excalidraw/fonts/Lilita/
+    - assets/excalidraw/fonts/Nunito/
+    - assets/excalidraw/fonts/Virgil/
+    - assets/excalidraw/fonts/Xiaolai/
     - assets/sample_vault/
     - assets/sample_vault/01_Guides/
     - assets/sample_vault/02_Architecture/

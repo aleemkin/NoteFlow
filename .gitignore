@@ -49,7 +49,17 @@ android/build/
 android/app/build/
 **/build/
 
+# Web Excalidraw node_modules and dist
+web_excalidraw/node_modules/
+web_excalidraw/dist/
+
+# Excalidraw built web bundle (built from web_excalidraw)
+assets/excalidraw/*
+!assets/excalidraw/.gitkeep
+
 # Keystore and signing keys
 key.properties
 **/*.jks
 **/*.keystore
+
+

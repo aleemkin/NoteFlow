@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Excalidraw Host</title>
+    <script>
+      (function() {
+        var href = window.location.href || '';
+        var base;
+        if (href.startsWith('file://') || href.startsWith('http://') || href.startsWith('https://')) {
+          base = href.substring(0, href.lastIndexOf('/') + 1);
+        } else {
+          base = 'file:///android_asset/flutter_assets/assets/excalidraw/';
+        }
+        window.EXCALIDRAW_ASSET_PATH = base;
+
+        var OrigURL = window.URL;
+        if (OrigURL) {
+          var SafeURL = function(url, baseArg) {
+            if (url && typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('file://') || url.startsWith('data:'))) {
+              return new OrigURL(url);
+            }
+            var validBase = base;
+            if (baseArg && typeof baseArg === 'string' && baseArg !== 'null' && baseArg !== '[object Object]' && (baseArg.startsWith('http://') || baseArg.startsWith('https://') || baseArg.startsWith('file://'))) {
+              validBase = baseArg;
+            }
+            try {
+              return new OrigURL(url, validBase);
+            } catch (e) {
+              try {
+                return new OrigURL(url, 'https://unpkg.com/@excalidraw/excalidraw/dist/prod/');
+              } catch (e2) {
+                return { href: String(url), pathname: String(url), toString: function() { return String(url); } };
+              }
+            }
+          };
+          SafeURL.prototype = OrigURL.prototype;
+          Object.setPrototypeOf(SafeURL, OrigURL);
+          window.URL = SafeURL;
+        }
+      })();
+    </script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        /* Constrain Excalidraw internal z-indexes so Flutter popups, dialogs, and top-right notifications always stay on top */
+        --zIndex-canvas: 1;
+        --zIndex-interactiveCanvas: 2;
+        --zIndex-svgLayer: 3;
+        --zIndex-wysiwyg: 3;
+        --zIndex-canvasButtons: 3;
+        --zIndex-layerUI: 4;
+        --zIndex-eyeDropperBackdrop: 5;
+        --zIndex-eyeDropperPreview: 6;
+        --zIndex-hyperlinkContainer: 7;
+        --zIndex-modal: 10;
+        --zIndex-popup: 11;
+        --zIndex-toast: 12;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #000000;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        position: relative;
+        z-index: 0;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        z-index: 0;
+        isolation: isolate;
+      }
+      .excalidraw-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        z-index: 0;
+      }
+      .excalidraw {
+        position: relative;
+        z-index: 0;
+      }
+      .excalidraw .Toast {
+        z-index: 12 !important;
+      }
+      .excalidraw .Modal {
+        z-index: 10 !important;
+      }
+      .excalidraw .popover {
+        z-index: 11 !important;
+      }
+      /* Subtle custom scrollbar and theme styling */
+      .excalidraw.theme--dark {
+        --color-surface-low: #000000;
+        --color-surface-mid: #1a202c;
+      }
+      /* Read-only mode hides bottom-left zoom controls and side panels for clean embed */
+      .excalidraw-readonly .layer-ui__wrapper .zen-mode-transition {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
