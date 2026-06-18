@@ -51,7 +51,9 @@ class TableBlockRenderer extends StatelessWidget {
           border: Border.all(color: AppColors.borderSubtle),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Table(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Table(
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             defaultColumnWidth: const IntrinsicColumnWidth(),
             border: const TableBorder(
@@ -115,6 +117,7 @@ class TableBlockRenderer extends StatelessWidget {
                 ),
             ],
           ),
+        ),
       ),
     );
   }
