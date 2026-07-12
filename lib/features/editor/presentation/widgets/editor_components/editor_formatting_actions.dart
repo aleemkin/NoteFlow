@@ -34,6 +34,7 @@ class EditorFormattingActions {
       );
     }
     onTextChanged(controller.text);
+    focusNode.requestFocus();
   }
 
   /// Inserts a block-level tag template (e.g. @@imp, @@info, @@tag) immediately without modal prompts.
@@ -70,6 +71,7 @@ class EditorFormattingActions {
     }
 
     onTextChanged(controller.text);
+    focusNode.requestFocus();
   }
 
   static void insertTable({
@@ -181,5 +183,6 @@ class EditorFormattingActions {
       );
     }
     onTextChanged(controller.text);
+    focusNode.requestFocus();
   }
 }
