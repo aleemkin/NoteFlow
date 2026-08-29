@@ -67,12 +67,6 @@ class _MobileVaultDetailsTabState extends ConsumerState<MobileVaultDetailsTab>
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         children: [
-          // Brand banner
-          const SizedBox(height: 16),
-          const Icon(Icons.folder_special, size: 48, color: Colors.blue),
-          const SizedBox(height: 8),
-          const Text('NoteFlow Workspace', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
           // 1. Current Active Workspace Card
           VaultOverviewCard(
             vaultDisplayName: vault?.displayName ?? 'Notebook Workspace',
