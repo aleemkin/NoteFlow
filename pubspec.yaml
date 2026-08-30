@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Routing
+  go_router: ^14.8.1
+
   # Markdown parsing
   markdown: ^7.3.0
 
