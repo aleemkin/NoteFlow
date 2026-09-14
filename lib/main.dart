@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'package:noteflow/app/notebook_app.dart';
 import 'package:noteflow/core/platform/app_platform.dart';
 
 void main() async {
@@ -31,22 +33,5 @@ void main() async {
     }
   }
 
-  runApp(const NoteFlowApp());
-}
-
-class NoteFlowApp extends StatelessWidget {
-  const NoteFlowApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'NoteFlow',
-      home: Scaffold(
-        body: Center(
-          child: Text('NoteFlow'),
-        ),
-      ),
-    );
-  }
+  runApp(const ProviderScope(child: NotebookApp()));
 }
