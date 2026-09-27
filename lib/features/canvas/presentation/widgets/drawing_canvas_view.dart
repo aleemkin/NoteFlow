@@ -22,7 +22,7 @@ class DrawingCanvasView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF000000),
+      color: const Color(0xFF121212),
       child: Stack(
         children: [
           Positioned.fill(
@@ -44,7 +44,7 @@ class DrawingCanvasView extends StatelessWidget {
           if (loading)
             Positioned.fill(
               child: Container(
-                color: const Color(0xFF000000),
+                color: const Color(0xFF121212),
                 child: const Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

@@ -167,6 +167,7 @@ class DocumentSurface extends StatelessWidget {
     return ViewBlockRenderer(
       markRef: block.markRef,
       docPath: block.docPath,
+      docDirectory: document.uri.directory,
       markType: markType,
       resolvedContent: resolvedWidget,
     );

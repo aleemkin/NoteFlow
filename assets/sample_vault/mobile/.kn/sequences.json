@@ -1,0 +1,19 @@
+{
+  "": [
+    "01_Welcome_to_noteflow.md",
+    "02_Mobile_Gesture_and_Touch_Guide.md",
+    "03_Mobile_Writing_and_Tags.md"
+  ],
+  "01_Daily_Notes": [
+    "01_Daily_Notes/Today_Focus.md",
+    "01_Daily_Notes/Meeting_and_Ideas.md"
+  ],
+  "02_Drawings": [
+    "02_Drawings/Mobile_Diagram_Workflow.md",
+    "02_Drawings/mobile_workflow.excalidraw"
+  ],
+  "03_Guides": [
+    "03_Guides/Continuous_Reading_on_Mobile.md",
+    "03_Guides/Managing_Vaults_on_Device.md"
+  ]
+}

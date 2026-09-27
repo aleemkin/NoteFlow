@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,6 +31,8 @@ class _InlineCreateRowState extends State<InlineCreateRow> {
   final FocusNode _focusNode = FocusNode();
   bool _handled = false;
   bool _isInvalid = false;
+  bool _hasEverFocused = false;
+  Timer? _focusTimer;
 
   @override
   void initState() {
@@ -43,6 +47,27 @@ class _InlineCreateRowState extends State<InlineCreateRow> {
       }
       return KeyEventResult.ignored;
     };
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _focusNode.requestFocus();
+        try {
+          Scrollable.ensureVisible(
+            context,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 150),
+          );
+        } catch (_) {}
+      }
+    });
+
+    if (AppPlatform.isMobile) {
+      _focusTimer = Timer(const Duration(milliseconds: 300), () {
+        if (mounted && !_handled) {
+          _focusNode.requestFocus();
+        }
+      });
+    }
   }
 
   void _onTextChanged() {
@@ -56,7 +81,11 @@ class _InlineCreateRowState extends State<InlineCreateRow> {
   }
 
   void _onFocusChange() {
-    if (!_focusNode.hasFocus && !_handled) {
+    if (_focusNode.hasFocus) {
+      _hasEverFocused = true;
+      return;
+    }
+    if (!_focusNode.hasFocus && !_handled && _hasEverFocused) {
       final text = _controller.text.trim();
       if (text.isNotEmpty && !_isInvalid) {
         _commit(text);
@@ -95,6 +124,7 @@ class _InlineCreateRowState extends State<InlineCreateRow> {
 
   @override
   void dispose() {
+    _focusTimer?.cancel();
     _controller.removeListener(_onTextChanged);
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();

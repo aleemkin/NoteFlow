@@ -9,7 +9,7 @@ class ExcalidrawTemplate {
   "source": "noteflow",
   "elements": [],
   "appState": {
-    "viewBackgroundColor": "#000000"
+    "viewBackgroundColor": "#ffffff"
   }
 }''';
 }

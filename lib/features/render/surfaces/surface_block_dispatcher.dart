@@ -188,6 +188,7 @@ class SurfaceBlockDispatcher {
     return ViewBlockRenderer(
       markRef: block.markRef,
       docPath: displayDocPath,
+      docDirectory: docUri.directory,
       markType: markType,
       resolvedContent: resolvedWidget,
       onNavigateToSource: onNavigate,

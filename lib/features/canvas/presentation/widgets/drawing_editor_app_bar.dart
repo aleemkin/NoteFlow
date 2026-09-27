@@ -18,47 +18,56 @@ class DrawingEditorAppBar extends StatelessWidget
     required this.onSave,
   });
 
+  static const double appBarHeight = 38.0;
+
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(appBarHeight);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      toolbarHeight: appBarHeight,
       backgroundColor: AppColors.surfaceNavbar,
       elevation: 0,
+      leadingWidth: onClose != null ? 36.0 : 0.0,
       leading: onClose != null
           ? IconButton(
               icon: const Icon(
                 Icons.arrow_back_rounded,
                 color: AppColors.textPrimary,
+                size: 16,
               ),
               tooltip: 'Back to notes',
+              splashRadius: 16,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               onPressed: onClose,
             )
           : null,
+      titleSpacing: onClose != null ? 4.0 : 12.0,
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.draw_rounded, size: 18, color: Color(0xFFEC4899)),
-          const SizedBox(width: 8),
+          const Icon(Icons.draw_rounded, size: 14, color: Color(0xFFEC4899)),
+          const SizedBox(width: 6),
           Flexible(
             child: Text(
               fileName,
               style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           if (isDirty) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
               decoration: BoxDecoration(
                 color: AppColors.markImportant.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(3),
                 border: Border.all(
                   color: AppColors.markImportant.withValues(alpha: 0.4),
                 ),
@@ -66,9 +75,10 @@ class DrawingEditorAppBar extends StatelessWidget
               child: const Text(
                 'UNSAVED',
                 style: TextStyle(
-                  fontSize: 9,
+                  fontSize: 8.5,
                   fontWeight: FontWeight.w800,
                   color: AppColors.markImportant,
+                  letterSpacing: 0.5,
                 ),
               ),
             ),
@@ -78,18 +88,19 @@ class DrawingEditorAppBar extends StatelessWidget
       actions: [
         FilledButton.icon(
           onPressed: onSave,
-          icon: const Icon(Icons.save_outlined, size: 16),
+          icon: const Icon(Icons.save_outlined, size: 13),
           label: const Text('Save'),
           style: FilledButton.styleFrom(
             backgroundColor: isDirty
                 ? AppColors.secondary
                 : AppColors.surfaceCard,
             foregroundColor: isDirty ? Colors.black : AppColors.textPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            minimumSize: const Size(0, 32),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            minimumSize: const Size(0, 26),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             textStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -99,13 +110,16 @@ class DrawingEditorAppBar extends StatelessWidget
             icon: const Icon(
               Icons.close_rounded,
               color: AppColors.textSecondary,
-              size: 20,
+              size: 16,
             ),
+            splashRadius: 16,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
             tooltip: 'Close drawing',
             onPressed: onClose,
           ),
         ],
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
       ],
     );
   }

@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:noteflow/app/app_providers.dart';
+import 'package:noteflow/core/platform/memory_vault_file_system.dart';
 import 'package:noteflow/features/document/document.dart';
 import 'package:noteflow/features/knowledge/data/link_resolver.dart';
 import 'package:noteflow/core/platform/vault_uri.dart';
 import 'package:noteflow/features/render/blocks/block_renderer.dart';
 import 'package:noteflow/features/render/surfaces/continuous_folder_surface.dart';
 import 'package:noteflow/features/render/surfaces/document_surface.dart';
+import 'package:noteflow/features/vault/vault.dart';
 
 void main() {
   group('Tag Syntax Scanner & Parser Tests', () {
@@ -201,6 +205,53 @@ API documentation reference.
         findsOneWidget,
       );
     });
+
+    testWidgets(
+      'ViewBlockRenderer resolves cross-note mark asynchronously on demand from vault',
+      (tester) async {
+        final fs = MemoryVaultFileSystem();
+        fs.seed(
+          '02_Architecture/System_Architecture.md',
+          '''# Architecture
+@@architecture #arch_core title="Local-First Guarantee"
+Your data stays entirely on your local machine.
+@@/architecture
+''',
+        );
+        final treeRepo = VaultTreeRepository();
+        final manager = VaultManager(treeRepository: treeRepo);
+        await manager.openCustomFileSystem(fs, 'Test Vault');
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              vaultTreeRepositoryProvider.overrideWith((ref) => treeRepo),
+              vaultManagerProvider.overrideWith((ref) => manager),
+            ],
+            child: const MaterialApp(
+              home: Scaffold(
+                body: ViewBlockRenderer(
+                  markRef: 'arch_core',
+                  docPath: '02_Architecture/System_Architecture.md',
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('02_Architecture/System_Architecture.md#arch_core'),
+          findsOneWidget,
+        );
+        expect(find.text('ARCHITECTURE'), findsOneWidget);
+        expect(
+          find.text('Your data stays entirely on your local machine.'),
+          findsOneWidget,
+        );
+      },
+    );
 
     testWidgets(
       'ContinuousFolderSurface previews transcluded block from another note',

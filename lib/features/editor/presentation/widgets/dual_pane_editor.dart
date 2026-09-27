@@ -62,14 +62,14 @@ class DualPaneEditorState extends ConsumerState<DualPaneEditor> {
   }
 
   void _onExternalFileChange(VaultChangeBatch batch) {
-    if (_dirty) return; // Keep user's active uncommitted edits
+    if (_dirty || _isSaving) return; // Keep user's active uncommitted edits or while saving
     final affectsThisDoc = batch.changes.any(
       (c) =>
           c.uri.path == widget.documentPath &&
           c.type == VaultChangeType.modified,
     );
     if (affectsThisDoc && mounted) {
-      _loadDocument();
+      _loadDocument(isExternalReload: true);
     }
   }
 
@@ -103,24 +103,49 @@ class DualPaneEditorState extends ConsumerState<DualPaneEditor> {
     super.dispose();
   }
 
-  Future<void> _loadDocument() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  Future<void> _loadDocument({bool isExternalReload = false}) async {
+    if (!isExternalReload) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
     try {
       final manager = ref.read(vaultManagerProvider);
       final uri = VaultUri(path: widget.documentPath);
       final bytes = await manager.readFile(uri);
       final rawText = utf8.decode(bytes);
-      _frontmatter = FrontmatterParser.extractFrontmatter(rawText);
+      final frontmatter = FrontmatterParser.extractFrontmatter(rawText);
       final bodyText = FrontmatterParser.extractBody(rawText);
+
+      // If this is an external reload and the body text has not changed,
+      // ignore it to prevent resetting controller state, focus, or cursor.
+      if (isExternalReload && _rawController.text == bodyText) {
+        _frontmatter = frontmatter;
+        return;
+      }
+
       final doc = DocumentParser.parse(bytes: bytes, uri: uri);
       final units = AtomicUnitParser.parseUnits(doc, bodyText);
       if (mounted) {
+        final currentSelection = _rawController.selection;
+        final clampedBase = currentSelection.isValid
+            ? currentSelection.baseOffset.clamp(0, bodyText.length)
+            : bodyText.length;
+        final clampedExtent = currentSelection.isValid
+            ? currentSelection.extentOffset.clamp(0, bodyText.length)
+            : bodyText.length;
+
         setState(() {
           _liveDocument = doc;
-          _rawController.text = bodyText;
+          _frontmatter = frontmatter;
+          _rawController.value = TextEditingValue(
+            text: bodyText,
+            selection: TextSelection(
+              baseOffset: clampedBase,
+              extentOffset: clampedExtent,
+            ),
+          );
           _syntaxWarning = EditorSyntaxValidator.validate(bodyText);
           _loading = false;
         });
@@ -193,7 +218,9 @@ class DualPaneEditorState extends ConsumerState<DualPaneEditor> {
       await ops.saveFile(VaultUri(path: widget.documentPath), fullText);
       if (mounted) {
         setState(() {
-          _dirty = false;
+          if (_rawController.text == text) {
+            _dirty = false;
+          }
           _isSaving = false;
           _saveError = null;
         });

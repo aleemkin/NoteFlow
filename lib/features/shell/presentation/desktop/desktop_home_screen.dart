@@ -18,8 +18,9 @@ import 'package:noteflow/features/editor/presentation/outline/outline_inspector_
 import 'package:noteflow/core/widgets/resizable_panel_layout.dart';
 import 'package:noteflow/features/search/presentation/search_widget.dart';
 import 'package:noteflow/features/vault/presentation/widgets/vault_tree_widget.dart';
-import 'package:noteflow/features/shell/presentation/welcome/welcome_view.dart';
 import 'package:noteflow/features/vault/vault.dart';
+import 'package:noteflow/features/shell/presentation/welcome/welcome_view.dart';
+import 'package:noteflow/features/shell/presentation/widgets/vault_loading_overlay.dart';
 import 'package:noteflow/features/shell/presentation/window_chrome/window_chrome.dart';
 
 import 'desktop_editor_panel.dart';
@@ -38,6 +39,10 @@ class _DesktopHomeScreenState extends ConsumerState<DesktopHomeScreen> {
       GlobalKey<DualPaneEditorState>();
   final ScrollController _scrollController = ScrollController();
   final Map<String, GlobalKey> _blockKeys = {};
+  bool _isLoadingVault = false;
+  String _loadingTitle = 'Opening Workspace';
+  String _loadingMessage = 'Preparing workspace...';
+  double? _loadingProgress;
 
   @override
   void initState() {
@@ -225,38 +230,98 @@ class _DesktopHomeScreenState extends ConsumerState<DesktopHomeScreen> {
   }
 
   Future<void> _openSampleVault() async {
-    final manager = ref.read(vaultManagerProvider);
-    await manager.openSampleVault();
-    ref.read(currentVaultProvider.notifier).state = manager.currentVault;
-    ref.read(editorSessionControllerProvider.notifier).switchToReadingMode();
+    setState(() {
+      _isLoadingVault = true;
+      _loadingTitle = 'Setting up Desktop Sample Vault';
+      _loadingMessage = 'Initializing workspace...';
+      _loadingProgress = 0.0;
+    });
+    try {
+      final manager = ref.read(vaultManagerProvider);
+      await manager.openSampleVault(
+        isMobile: false,
+        onProgress: (message, progress) {
+          if (mounted) {
+            setState(() {
+              _loadingMessage = message;
+              _loadingProgress = progress;
+            });
+          }
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _loadingMessage = 'Loading workspace notes & diagrams...';
+          _loadingProgress = null;
+        });
+      }
+      ref.read(currentVaultProvider.notifier).state = manager.currentVault;
+      ref.read(editorSessionControllerProvider.notifier).switchToReadingMode();
 
-    final treeRepo = ref.read(vaultTreeRepositoryProvider);
-    if (treeRepo.root != null) {
-      await _loadFolderAndRegisterKeys(treeRepo.root!);
-      final activeState = ref.read(activeFolderControllerProvider);
-      if (activeState.documents.isNotEmpty) {
-        ref
-            .read(editorSessionControllerProvider.notifier)
-            .selectFile(activeState.documents.first.uri.path);
+      final treeRepo = ref.read(vaultTreeRepositoryProvider);
+      if (treeRepo.root != null) {
+        await _loadFolderAndRegisterKeys(treeRepo.root!);
+        final activeState = ref.read(activeFolderControllerProvider);
+        if (activeState.documents.isNotEmpty) {
+          ref
+              .read(editorSessionControllerProvider.notifier)
+              .selectFile(activeState.documents.first.uri.path);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        AppNotification.showError(
+          context,
+          'Failed to open sample vault: $e',
+          title: 'Sample Vault Error',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingVault = false;
+        });
       }
     }
   }
 
   Future<void> _doOpenVault(String path) async {
-    final manager = ref.read(vaultManagerProvider);
-    await manager.openLocalVault(path);
-    ref.read(currentVaultProvider.notifier).state = manager.currentVault;
-    await VaultStateStorage.saveLastVaultPath(path);
-    ref.read(editorSessionControllerProvider.notifier).switchToReadingMode();
+    setState(() {
+      _isLoadingVault = true;
+      _loadingTitle = 'Opening Workspace';
+      _loadingMessage = 'Loading ${p.basename(path)}...';
+      _loadingProgress = null;
+    });
+    try {
+      final manager = ref.read(vaultManagerProvider);
+      await manager.openLocalVault(path);
+      ref.read(currentVaultProvider.notifier).state = manager.currentVault;
+      await VaultStateStorage.saveLastVaultPath(path);
+      ref.read(editorSessionControllerProvider.notifier).switchToReadingMode();
 
-    final treeRepo = ref.read(vaultTreeRepositoryProvider);
-    if (treeRepo.root != null) {
-      await _loadFolderAndRegisterKeys(treeRepo.root!);
-      final activeState = ref.read(activeFolderControllerProvider);
-      if (activeState.documents.isNotEmpty) {
-        ref
-            .read(editorSessionControllerProvider.notifier)
-            .selectFile(activeState.documents.first.uri.path);
+      final treeRepo = ref.read(vaultTreeRepositoryProvider);
+      if (treeRepo.root != null) {
+        await _loadFolderAndRegisterKeys(treeRepo.root!);
+        final activeState = ref.read(activeFolderControllerProvider);
+        if (activeState.documents.isNotEmpty) {
+          ref
+              .read(editorSessionControllerProvider.notifier)
+              .selectFile(activeState.documents.first.uri.path);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        AppNotification.showError(
+          context,
+          'Failed to open vault: $e',
+          title: 'Vault Error',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingVault = false;
+        });
       }
     }
   }
@@ -312,7 +377,9 @@ class _DesktopHomeScreenState extends ConsumerState<DesktopHomeScreen> {
       },
       child: Focus(
         autofocus: true,
-        child: Scaffold(
+        child: Stack(
+          children: [
+            Scaffold(
           body: Column(
             children: [
               if (!isOpen)
@@ -508,7 +575,15 @@ class _DesktopHomeScreenState extends ConsumerState<DesktopHomeScreen> {
             ],
           ),
         ),
-      ),
-    );
+        if (_isLoadingVault)
+          VaultLoadingOverlay(
+            title: _loadingTitle,
+            message: _loadingMessage,
+            progress: _loadingProgress,
+          ),
+      ],
+    ),
+  ),
+);
   }
 }

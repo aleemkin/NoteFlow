@@ -266,11 +266,13 @@ void main() {
         expect(find.byIcon(Icons.keyboard_outlined), findsNothing);
 
         // Clean Close Vault button
+        await tester.scrollUntilVisible(find.text('Close Vault'), 200);
         expect(find.text('Close Vault'), findsOneWidget);
         await tester.tap(find.text('Close Vault'));
         expect(closeVaultCalled, isTrue);
 
         // Action callbacks
+        await tester.scrollUntilVisible(find.text('Open Local Vault'), -200);
         await tester.tap(find.text('Open Local Vault'));
         expect(openVaultCalled, isTrue);
         await tester.tap(find.text('Create New Vault'));

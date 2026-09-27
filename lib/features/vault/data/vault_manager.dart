@@ -102,8 +102,15 @@ class VaultManager {
   }
 
   /// Opens a rich, interactive sample vault as a standard local folder on disk.
-  Future<void> openSampleVault() async {
-    final samplePath = await SampleVaultLoader.ensureSampleVaultOnDisk();
+  Future<void> openSampleVault({
+    bool? isMobile,
+    void Function(String message, double? progress)? onProgress,
+  }) async {
+    final samplePath = await SampleVaultLoader.ensureSampleVaultOnDisk(
+      isMobile: isMobile,
+      onProgress: onProgress,
+    );
+    onProgress?.call('Scanning notebook files...', null);
     await openLocalVault(samplePath, customDisplayName: 'Sample Vault');
   }
 

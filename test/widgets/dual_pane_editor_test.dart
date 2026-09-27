@@ -230,5 +230,67 @@ void main() {
         expect(savedText, contains('@@/imp'));
       },
     );
+
+    testWidgets(
+      'DualPaneEditor preserves cursor position after auto-save and does not reset to end',
+      (WidgetTester tester) async {
+        await tester.binding.setSurfaceSize(const Size(1400, 800));
+        tester.view.physicalSize = const Size(1400, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() async {
+          await tester.binding.setSurfaceSize(null);
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        final fs = MemoryVaultFileSystem();
+        fs.seed(
+          'cursor_test.md',
+          '# Title\n\nParagraph 1\n\nParagraph 2\n\nParagraph 3',
+        );
+        final treeRepo = VaultTreeRepository();
+        final manager = VaultManager(treeRepository: treeRepo);
+        await manager.openCustomFileSystem(fs, 'Test Vault');
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              vaultTreeRepositoryProvider.overrideWith((ref) => treeRepo),
+              vaultManagerProvider.overrideWith((ref) => manager),
+            ],
+            child: const MaterialApp(
+              home: Scaffold(
+                body: DualPaneEditor(documentPath: 'cursor_test.md'),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final editableText = tester.widget<EditableText>(
+          find.byType(EditableText),
+        );
+        editableText.controller.selection = const TextSelection.collapsed(
+          offset: 10,
+        );
+        expect(editableText.controller.selection.baseOffset, 10);
+
+        // Simulate typing a character at offset 10
+        editableText.controller.value = const TextEditingValue(
+          text: '# Title\n\nPaXragraph 1\n\nParagraph 2\n\nParagraph 3',
+          selection: TextSelection.collapsed(offset: 11),
+        );
+
+        // Allow preview & auto-save to run (600ms debounce)
+        await tester.pump(const Duration(milliseconds: 700));
+        await tester.pumpAndSettle();
+
+        // Verify auto-saved
+        expect(find.text('Auto-saved'), findsOneWidget);
+
+        // Verify cursor did NOT jump to the end (text.length > 50)
+        expect(editableText.controller.selection.baseOffset, 11);
+      },
+    );
   });
 }

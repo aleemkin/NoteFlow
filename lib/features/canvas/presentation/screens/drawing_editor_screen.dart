@@ -79,7 +79,7 @@ class _DrawingEditorScreenState extends ConsumerState<DrawingEditorScreen> {
 
       final controller = WebViewController();
       await controller.setJavaScriptMode(JavaScriptMode.unrestricted);
-      await controller.setBackgroundColor(const Color(0xFF000000));
+      await controller.setBackgroundColor(const Color(0xFF121212));
       await controller.setOnConsoleMessage((JavaScriptConsoleMessage msg) {
         debugPrint('Excalidraw Console [${msg.level.name}]: ${msg.message}');
       });
@@ -164,7 +164,7 @@ class _DrawingEditorScreenState extends ConsumerState<DrawingEditorScreen> {
       }
 
       const defaultDrawingJson =
-          '{"type":"excalidraw","version":2,"source":"noteflow","elements":[],"appState":{"viewBackgroundColor":"#000000"}}';
+          '{"type":"excalidraw","version":2,"source":"noteflow","elements":[],"appState":{"viewBackgroundColor":"#ffffff"}}';
       final jsonToInject =
           (jsonContent != null && jsonContent.trim().isNotEmpty)
           ? jsonContent
@@ -365,7 +365,7 @@ class _DrawingEditorScreenState extends ConsumerState<DrawingEditorScreen> {
 
     final Widget content = widget.showAppBar
         ? Scaffold(
-            backgroundColor: const Color(0xFF000000),
+            backgroundColor: const Color(0xFF121212),
             appBar: DrawingEditorAppBar(
               fileName: fileName,
               isDirty: _dirty,

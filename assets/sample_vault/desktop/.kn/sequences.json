@@ -1,0 +1,22 @@
+{
+  "": [
+    "01_Welcome_to_noteflow.md",
+    "02_Keyboard_Shortcuts_and_Navigation.md",
+    "03_Markdown_and_Tag_Directives.md",
+    "04_Starting_Your_Own_Vault.md"
+  ],
+  "01_Guides": [
+    "01_Guides/Continuous_Reading_Workflow.md",
+    "01_Guides/Dual_Pane_Split_Editor.md",
+    "01_Guides/Outline_and_Drag_Reorder.md",
+    "01_Guides/Topic_Filtering_and_Export.md"
+  ],
+  "02_Architecture": [
+    "02_Architecture/System_Architecture.md",
+    "02_Architecture/system_architecture.excalidraw"
+  ],
+  "03_Projects": [
+    "03_Projects/Product_Roadmap.md",
+    "03_Projects/Sprint_Planning.md"
+  ]
+}

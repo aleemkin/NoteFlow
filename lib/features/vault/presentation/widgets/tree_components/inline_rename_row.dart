@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,6 +31,8 @@ class _InlineRenameRowState extends State<InlineRenameRow> {
   final FocusNode _focusNode = FocusNode();
   bool _handled = false;
   bool _isInvalid = false;
+  bool _hasEverFocused = false;
+  Timer? _focusTimer;
 
   @override
   void initState() {
@@ -56,6 +60,27 @@ class _InlineRenameRowState extends State<InlineRenameRow> {
       }
       return KeyEventResult.ignored;
     };
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _focusNode.requestFocus();
+        try {
+          Scrollable.ensureVisible(
+            context,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 150),
+          );
+        } catch (_) {}
+      }
+    });
+
+    if (AppPlatform.isMobile) {
+      _focusTimer = Timer(const Duration(milliseconds: 300), () {
+        if (mounted && !_handled) {
+          _focusNode.requestFocus();
+        }
+      });
+    }
   }
 
   void _onTextChanged() {
@@ -69,7 +94,11 @@ class _InlineRenameRowState extends State<InlineRenameRow> {
   }
 
   void _onFocusChange() {
-    if (!_focusNode.hasFocus && !_handled) {
+    if (_focusNode.hasFocus) {
+      _hasEverFocused = true;
+      return;
+    }
+    if (!_focusNode.hasFocus && !_handled && _hasEverFocused) {
       final text = _controller.text.trim();
       if (text.isNotEmpty && text != widget.node.name && !_isInvalid) {
         _commit(text);
@@ -114,6 +143,7 @@ class _InlineRenameRowState extends State<InlineRenameRow> {
 
   @override
   void dispose() {
+    _focusTimer?.cancel();
     _controller.removeListener(_onTextChanged);
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();

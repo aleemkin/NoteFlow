@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:noteflow/app/app_providers.dart';
+import 'package:noteflow/core/widgets/app_svg_icon.dart';
 import 'package:noteflow/features/vault/vault.dart';
 import 'widgets/vault_tab/vault_overview_card.dart';
 import 'widgets/vault_tab/vault_quick_actions_card.dart';
@@ -67,6 +68,34 @@ class _MobileVaultDetailsTabState extends ConsumerState<MobileVaultDetailsTab>
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         children: [
+          const SizedBox(height: 24),
+          Column(
+            children: [
+              const SizedBox(height: 8),
+              const AppSvgIcon.appIcon(width: 44, height: 44),
+              const SizedBox(height: 8),
+              const Text(
+                'Noteflow',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                  color: Color(0xFFDFE2EB),
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Local-first knowledge notebook\nwith Markdown & Excalidraw diagrams',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.3,
+                  color: Color(0xFF8B949E),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           // 1. Current Active Workspace Card
           VaultOverviewCard(
             vaultDisplayName: vault?.displayName ?? 'Notebook Workspace',

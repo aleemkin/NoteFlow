@@ -67,7 +67,13 @@ flutter:
     - assets/excalidraw/fonts/Nunito/
     - assets/excalidraw/fonts/Virgil/
     - assets/excalidraw/fonts/Xiaolai/
-    - assets/sample_vault/
-    - assets/sample_vault/01_Guides/
-    - assets/sample_vault/02_Architecture/
-    - assets/sample_vault/.kn/
+    - assets/sample_vault/desktop/
+    - assets/sample_vault/desktop/01_Guides/
+    - assets/sample_vault/desktop/02_Architecture/
+    - assets/sample_vault/desktop/03_Projects/
+    - assets/sample_vault/desktop/.kn/
+    - assets/sample_vault/mobile/
+    - assets/sample_vault/mobile/01_Daily_Notes/
+    - assets/sample_vault/mobile/02_Drawings/
+    - assets/sample_vault/mobile/03_Guides/
+    - assets/sample_vault/mobile/.kn/

@@ -147,6 +147,15 @@ void main() {
 
       // Verify inline input row appears in tree with hint 'note.md'
       expect(find.text('note.md'), findsOneWidget);
+
+      // Verify focus was shifted to the inline creation text field
+      final textField = tester.widget<TextField>(
+        find.descendant(
+          of: find.byType(InlineCreateRow),
+          matching: find.byType(TextField),
+        ),
+      );
+      expect(textField.focusNode?.hasFocus, isTrue);
     },
   );
 
@@ -198,8 +207,14 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
 
       // An inline TextField should now be active containing 'sample.md'
-      final textField = find.byType(TextField);
-      expect(textField, findsWidgets); // search bar + inline rename field
+      final renameField = tester.widget<TextField>(
+        find.descendant(
+          of: find.byType(InlineRenameRow),
+          matching: find.byType(TextField),
+        ),
+      );
+      expect(renameField.controller?.text, 'sample.md');
+      expect(renameField.focusNode?.hasFocus, isTrue);
     },
   );
 

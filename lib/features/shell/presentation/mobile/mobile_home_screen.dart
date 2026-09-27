@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as p;
 import 'package:noteflow/app/app_providers.dart';
 import 'package:noteflow/core/theme/app_theme.dart';
 import 'package:noteflow/features/document/document.dart';
@@ -48,7 +49,9 @@ class _MobileHomeScreenState extends ConsumerState<MobileHomeScreen> {
   late final VaultTreeController _vaultTreeController;
   InlineCreateType? _pendingCreateType;
   bool _isLoadingVault = false;
+  String _loadingTitle = 'Opening Workspace';
   String _loadingMessage = 'Loading...';
+  double? _loadingProgress;
 
   void _closeDrawing() {
     setState(() {
@@ -290,10 +293,28 @@ class _MobileHomeScreenState extends ConsumerState<MobileHomeScreen> {
     try {
       setState(() {
         _isLoadingVault = true;
-        _loadingMessage = 'Preparing sample vault...';
+        _loadingTitle = 'Setting up Mobile Sample Vault';
+        _loadingMessage = 'Initializing mobile workspace...';
+        _loadingProgress = 0.0;
       });
       final manager = ref.read(vaultManagerProvider);
-      await manager.openSampleVault();
+      await manager.openSampleVault(
+        isMobile: true,
+        onProgress: (msg, prog) {
+          if (mounted) {
+            setState(() {
+              _loadingMessage = msg;
+              _loadingProgress = prog;
+            });
+          }
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _loadingMessage = 'Loading notes and diagrams...';
+          _loadingProgress = null;
+        });
+      }
       ref.read(currentVaultProvider.notifier).state = manager.currentVault;
       setState(() {
         _currentTabIndex = 0; // Open in Notes tab
@@ -331,7 +352,9 @@ class _MobileHomeScreenState extends ConsumerState<MobileHomeScreen> {
   Future<void> _doOpenVault(String path) async {
     setState(() {
       _isLoadingVault = true;
-      _loadingMessage = 'Opening vault...';
+      _loadingTitle = 'Opening Workspace';
+      _loadingMessage = 'Loading ${p.basename(path)}...';
+      _loadingProgress = null;
     });
     try {
       final manager = ref.read(vaultManagerProvider);
@@ -444,7 +467,11 @@ class _MobileHomeScreenState extends ConsumerState<MobileHomeScreen> {
   }
 
   Widget _buildLoadingOverlay() {
-    return MobileLoadingOverlay(message: _loadingMessage);
+    return MobileLoadingOverlay(
+      title: _loadingTitle,
+      message: _loadingMessage,
+      progress: _loadingProgress,
+    );
   }
 
   @override

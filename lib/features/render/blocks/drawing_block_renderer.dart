@@ -113,10 +113,10 @@ class _DrawingBlockRendererState extends ConsumerState<DrawingBlockRenderer> {
       var cleanPath = widget.drawingPath;
       if (cleanPath.startsWith('./')) cleanPath = cleanPath.substring(2);
 
-      var uri = VaultUri(path: cleanPath);
+      var uri = VaultUri(path: p.normalize(cleanPath));
       if (await manager.fileSystem?.exists(uri) != true) {
         if (widget.docDirectory != null && widget.docDirectory!.isNotEmpty) {
-          final relPath = '${widget.docDirectory}/$cleanPath';
+          final relPath = p.normalize('${widget.docDirectory}/$cleanPath');
           final relUri = VaultUri(path: relPath);
           if (await manager.fileSystem?.exists(relUri) == true) {
             uri = relUri;
@@ -341,7 +341,7 @@ class _DrawingBlockRendererState extends ConsumerState<DrawingBlockRenderer> {
                 height: dynamicHeight,
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFF161B22),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: ClipRRect(
@@ -349,7 +349,7 @@ class _DrawingBlockRendererState extends ConsumerState<DrawingBlockRenderer> {
                   child: hasRealPng
                       ? Image.memory(
                           _pngBytes!,
-                          fit: BoxFit.contain,
+                          fit: BoxFit.cover,
                           gaplessPlayback: true,
                           errorBuilder: (context, error, stackTrace) =>
                               _buildPlaceholderCard(fileName),
@@ -361,6 +361,7 @@ class _DrawingBlockRendererState extends ConsumerState<DrawingBlockRenderer> {
           ),
         );
       },
+ 
     );
   }
 

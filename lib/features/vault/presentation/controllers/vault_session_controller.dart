@@ -69,10 +69,16 @@ class VaultSessionController extends StateNotifier<VaultSessionState> {
   }
 
   /// Unpacks and opens the interactive sample vault.
-  Future<void> openSampleVault() async {
+  Future<void> openSampleVault({
+    bool? isMobile,
+    void Function(String message, double? progress)? onProgress,
+  }) async {
     state = state.copyWith(isLoading: true, error: () => null);
     try {
-      await _manager.openSampleVault();
+      await _manager.openSampleVault(
+        isMobile: isMobile,
+        onProgress: onProgress,
+      );
       final vault = _manager.currentVault;
       _ref.read(currentVaultProvider.notifier).state = vault;
       state = state.copyWith(currentVault: () => vault, isLoading: false);

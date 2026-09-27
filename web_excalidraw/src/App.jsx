@@ -1,5 +1,83 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Excalidraw, getCommonBounds, exportToBlob, restoreElements } from '@excalidraw/excalidraw';
+import { Excalidraw, getCommonBounds, exportToBlob, exportToSvg, restoreElements } from '@excalidraw/excalidraw';
+
+// Check if Canvas 2D context natively supports the filter property (e.g. Chromium / Android WebView)
+const supportsCanvasFilter = () => {
+  try {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    return !!(ctx && 'filter' in ctx);
+  } catch (_) {
+    return false;
+  }
+};
+
+// Export PNG blob with dark mode support across all engines (including WebKitGTK on Linux & Safari)
+const exportDarkPngBlob = async ({ elements, appState, files, exportPadding = 16 }) => {
+  const mergedAppState = {
+    ...appState,
+    theme: 'dark',
+    exportWithDarkMode: true,
+    exportBackground: true,
+    viewBackgroundColor: appState.viewBackgroundColor || '#ffffff',
+  };
+
+  // If native canvas filter is supported (Android/Chromium), use standard exportToBlob
+  if (supportsCanvasFilter()) {
+    return exportToBlob({
+      elements,
+      appState: mergedAppState,
+      files: files || {},
+      exportPadding,
+      mimeType: 'image/png',
+      quality: 1,
+    });
+  }
+
+  // Fallback for WebKitGTK / Safari which lacks CanvasRenderingContext2D.filter:
+  // exportToSvg natively attaches filter="invert(93%) hue-rotate(180deg)",
+  // which WebKit's SVG rasterizer renders with complete fidelity.
+  const svg = await exportToSvg({
+    elements,
+    appState: mergedAppState,
+    files: files || {},
+    exportPadding,
+  });
+
+  const width = parseFloat(svg.getAttribute('width')) || 300;
+  const height = parseFloat(svg.getAttribute('height')) || 200;
+  const svgString = new XMLSerializer().serializeToString(svg);
+  const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Canvas toBlob returned null'));
+          }
+        }, 'image/png', 1);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    img.onerror = (err) => {
+      URL.revokeObjectURL(url);
+      reject(err);
+    };
+    img.src = url;
+  });
+};
 
 export default function App() {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
@@ -50,19 +128,11 @@ export default function App() {
       return;
     }
     try {
-      exportToBlob({
+      exportDarkPngBlob({
         elements,
-        appState: {
-          ...appState,
-          theme: 'dark',
-          exportWithDarkMode: false,
-          exportBackground: true,
-          viewBackgroundColor: appState.viewBackgroundColor || '#000000',
-        },
+        appState,
         files: files || {},
         exportPadding: 16,
-        mimeType: 'image/png',
-        quality: 1,
       })
         .then((blob) => {
           const reader = new FileReader();
@@ -80,7 +150,7 @@ export default function App() {
         })
         .catch((e) => console.error('PNG export error:', e));
     } catch (e) {
-      console.error('exportToBlob exception:', e);
+      console.error('exportDarkPngBlob exception:', e);
     }
   }, [filePath, notifyFlutter]);
 
@@ -98,8 +168,8 @@ export default function App() {
       source: 'noteflow',
       elements,
       appState: {
-        viewBackgroundColor: appState.viewBackgroundColor || '#000000',
-        currentItemStrokeColor: appState.currentItemStrokeColor || '#ffffff',
+        viewBackgroundColor: appState.viewBackgroundColor || '#ffffff',
+        currentItemStrokeColor: appState.currentItemStrokeColor || '#1e1e1e',
         currentItemBackgroundColor: appState.currentItemBackgroundColor || 'transparent',
         gridSize: appState.gridSize,
         scrollX: appState.scrollX,
@@ -135,7 +205,7 @@ export default function App() {
         } catch (_) { }
       }
       if (!parsed || typeof parsed !== 'object') {
-        parsed = { elements: [], appState: { viewBackgroundColor: '#000000' } };
+        parsed = { elements: [], appState: { viewBackgroundColor: '#ffffff' } };
       }
       const rawElements = parsed.elements || [];
       const elements = restoreElements(rawElements, null);
@@ -149,8 +219,8 @@ export default function App() {
 
       const appState = {
         theme: 'dark',
-        viewBackgroundColor: parsed.appState?.viewBackgroundColor || '#000000',
-        currentItemStrokeColor: parsed.appState?.currentItemStrokeColor || '#ffffff',
+        viewBackgroundColor: parsed.appState?.viewBackgroundColor || '#ffffff',
+        currentItemStrokeColor: parsed.appState?.currentItemStrokeColor || '#1e1e1e',
         currentItemBackgroundColor: parsed.appState?.currentItemBackgroundColor || 'transparent',
         gridSize: parsed.appState?.gridSize || null,
         scrollX: parsed.appState?.scrollX ?? 0,
@@ -168,7 +238,23 @@ export default function App() {
         if (shouldScroll || isReadOnly) {
           setTimeout(() => {
             try {
-              excalidrawAPI.scrollToContent(elements, { fitToViewport: true, viewportZoomFactor: 0.95 });
+              const visibleElements = (elements || []).filter((el) => !el.isDeleted);
+              if (visibleElements.length > 0) {
+                excalidrawAPI.scrollToContent(visibleElements, {
+                  fitToContent: true,
+                  fitToViewport: false,
+                  viewportZoomFactor: 0.95,
+                  maxZoom: 1,
+                });
+              } else {
+                excalidrawAPI.updateScene({
+                  appState: {
+                    zoom: { value: 1 },
+                    scrollX: 0,
+                    scrollY: 0,
+                  },
+                });
+              }
             } catch (_) { }
           }, 80);
         }
@@ -202,7 +288,7 @@ export default function App() {
     // Fallback: If Flutter doesn't inject scene within 1500ms, start with empty scene in dark mode
     const fallbackTimer = setTimeout(() => {
       if (!isLoadedRef.current) {
-        loadSceneFromJson(JSON.stringify({ elements: [], appState: { viewBackgroundColor: '#000000' } }));
+        loadSceneFromJson(JSON.stringify({ elements: [], appState: { viewBackgroundColor: '#ffffff' } }));
       }
     }, 1500);
     return () => clearTimeout(fallbackTimer);
@@ -301,11 +387,24 @@ export default function App() {
           }
           setTimeout(() => {
             try {
-              const els = api.getSceneElements();
-              if (els && els.length > 0) {
-                api.scrollToContent(els, { fitToViewport: true, viewportZoomFactor: 0.9 });
+              const els = (api.getSceneElements() || []).filter((el) => !el.isDeleted);
+              if (els.length > 0) {
+                api.scrollToContent(els, {
+                  fitToContent: true,
+                  fitToViewport: false,
+                  viewportZoomFactor: 0.9,
+                  maxZoom: 1,
+                });
                 const bounds = calculateContentBounds(els);
                 notifyFlutter({ type: 'HEIGHT_CHANGE', contentHeight: bounds.height, bounds });
+              } else {
+                api.updateScene({
+                  appState: {
+                    zoom: { value: 1 },
+                    scrollX: 0,
+                    scrollY: 0,
+                  },
+                });
               }
             } catch (_) { }
           }, 200);
@@ -313,10 +412,13 @@ export default function App() {
         initialData={initialData || {
           appState: {
             theme: 'dark',
-            viewBackgroundColor: '#000000',
-            currentItemStrokeColor: '#ffffff',
+            viewBackgroundColor: '#ffffff',
+            currentItemStrokeColor: '#1e1e1e',
             currentItemBackgroundColor: 'transparent',
             currentItemFontFamily: 1,
+            zoom: { value: 1 },
+            scrollX: 0,
+            scrollY: 0,
           },
         }}
         onChange={handleChange}
