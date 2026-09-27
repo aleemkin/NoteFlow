@@ -349,7 +349,7 @@ class _DrawingBlockRendererState extends ConsumerState<DrawingBlockRenderer> {
                   child: hasRealPng
                       ? Image.memory(
                           _pngBytes!,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           gaplessPlayback: true,
                           errorBuilder: (context, error, stackTrace) =>
                               _buildPlaceholderCard(fileName),
@@ -361,7 +361,6 @@ class _DrawingBlockRendererState extends ConsumerState<DrawingBlockRenderer> {
           ),
         );
       },
- 
     );
   }
 
