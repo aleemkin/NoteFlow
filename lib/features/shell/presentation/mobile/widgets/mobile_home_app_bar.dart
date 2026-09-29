@@ -161,7 +161,7 @@ class MobileHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppSvgIcon.folder(color: Color(0xFFDFE2EB), width: 18, height: 14),
+            AppSvgIcon.folder(color: Color(0xFFDFE2EB), size: 16),
             SizedBox(width: 8),
             Flexible(
               child: Text(

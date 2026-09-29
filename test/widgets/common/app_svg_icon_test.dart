@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,23 +39,87 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: Column(
-              children: [
-                AppSvgIcon.appIcon(size: 32),
-                AppSvgIcon.folder(size: 16),
-                AppSvgIcon.notes(size: 18),
-                AppSvgIcon.canvas(size: 18),
-                AppSvgIcon.rightPanelOpen(size: 18),
-                AppSvgIcon.rightPanelClosed(size: 18),
-                AppSvgIcon.codeMenu(size: 18),
-              ],
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  AppSvgIcon.appIcon(size: 24),
+                  AppSvgIcon.folder(size: 24),
+                  AppSvgIcon.openFolder(size: 24),
+                  AppSvgIcon.newFolder(size: 24),
+                  AppSvgIcon.leftPanelOpen(size: 24),
+                  AppSvgIcon.leftPanelClosed(size: 24),
+                  AppSvgIcon.rightPanelOpen(size: 24),
+                  AppSvgIcon.rightPanelClosed(size: 24),
+                  AppSvgIcon.codeMenu(size: 24),
+                  AppSvgIcon.readingToggle(size: 24),
+                  AppSvgIcon.editorToggle(size: 24),
+                  AppSvgIcon.notes(size: 24),
+                  AppSvgIcon.notesSelected(size: 24),
+                  AppSvgIcon.editor(size: 24),
+                  AppSvgIcon.editorSelected(size: 24),
+                  AppSvgIcon.canvas(size: 24),
+                  AppSvgIcon.canvasSelected(size: 24),
+                  AppSvgIcon.vault(size: 24),
+                  AppSvgIcon.vaultSelected(size: 24),
+                  AppSvgIcon.openBook(size: 24),
+                ],
+              ),
             ),
           ),
         ),
       );
 
-      expect(find.byType(AppSvgIcon), findsNWidgets(7));
-      expect(find.byType(SvgPicture), findsNWidgets(7));
+      expect(find.byType(AppSvgIcon), findsNWidgets(20));
+      expect(find.byType(SvgPicture), findsNWidgets(20));
+    });
+
+    test('all SVG asset files have synchronized 24x24 dimensions and viewBox', () {
+      final assets = [
+        AppSvgIcons.appIcon,
+        AppSvgIcons.folder,
+        AppSvgIcons.leftPanelClosed,
+        AppSvgIcons.leftPanelOpen,
+        AppSvgIcons.rightPanelClosed,
+        AppSvgIcons.rightPanelOpen,
+        AppSvgIcons.codeMenu,
+        AppSvgIcons.readingToggle,
+        AppSvgIcons.editorToggle,
+        AppSvgIcons.notes,
+        AppSvgIcons.notesSelected,
+        AppSvgIcons.openFolder,
+        AppSvgIcons.newFolder,
+        AppSvgIcons.editor,
+        AppSvgIcons.editorSelected,
+        AppSvgIcons.canvas,
+        AppSvgIcons.canvasSelected,
+        AppSvgIcons.vault,
+        AppSvgIcons.vaultSelected,
+        AppSvgIcons.openBook,
+      ];
+
+      expect(assets.length, 20);
+
+      for (final asset in assets) {
+        final file = File(asset);
+        expect(file.existsSync(), isTrue, reason: 'File $asset should exist');
+
+        final content = file.readAsStringSync();
+        expect(
+          content,
+          contains('viewBox="0 0 24 24"'),
+          reason: '$asset must have viewBox="0 0 24 24"',
+        );
+        expect(
+          content,
+          contains('width="24"'),
+          reason: '$asset must have width="24"',
+        );
+        expect(
+          content,
+          contains('height="24"'),
+          reason: '$asset must have height="24"',
+        );
+      }
     });
   });
 

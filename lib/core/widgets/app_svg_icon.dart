@@ -7,6 +7,7 @@ class AppSvgIcons {
 
   static const String appIcon = 'assets/icons/svg/AppIcon.svg';
   static const String folder = 'assets/icons/svg/Folder.svg';
+  static const String longCoffee = 'assets/icons/svg/long_coffee.svg';
   static const String leftPanelClosed =
       'assets/icons/svg/left_panel_closed.svg';
   static const String leftPanelOpen = 'assets/icons/svg/left_panel_open.svg';
@@ -26,6 +27,7 @@ class AppSvgIcons {
   static const String canvasSelected = 'assets/icons/svg/canvas_selected.svg';
   static const String vault = 'assets/icons/svg/vault.svg';
   static const String vaultSelected = 'assets/icons/svg/vault_selected.svg';
+  static const String openBook = 'assets/icons/svg/open_book.svg';
 }
 
 /// A reusable widget to render SVG icons with support for sizing, coloring,
@@ -61,6 +63,20 @@ class AppSvgIcon extends StatelessWidget {
   const AppSvgIcon({
     super.key,
     required this.assetPath,
+    this.width,
+    this.height,
+    this.size,
+    this.color,
+    this.blendMode = BlendMode.srcIn,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.semanticsLabel,
+  });
+
+  /// Factory constructor for providing an asset path positionally: AppSvgIcon.asset(path, ...)
+  const AppSvgIcon.asset(
+    this.assetPath, {
+    super.key,
     this.width,
     this.height,
     this.size,
@@ -122,6 +138,32 @@ class AppSvgIcon extends StatelessWidget {
     this.alignment = Alignment.center,
     this.semanticsLabel = 'New Folder',
   }) : assetPath = AppSvgIcons.newFolder;
+
+  /// Factory constructor for Left Panel Open icon
+  const AppSvgIcon.leftPanelOpen({
+    super.key,
+    this.width,
+    this.height,
+    this.size,
+    this.color,
+    this.blendMode = BlendMode.srcIn,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.semanticsLabel,
+  }) : assetPath = AppSvgIcons.leftPanelOpen;
+
+  /// Factory constructor for Left Panel Closed icon
+  const AppSvgIcon.leftPanelClosed({
+    super.key,
+    this.width,
+    this.height,
+    this.size,
+    this.color,
+    this.blendMode = BlendMode.srcIn,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.semanticsLabel,
+  }) : assetPath = AppSvgIcons.leftPanelClosed;
 
   /// Factory constructor for Right Panel Open icon
   const AppSvgIcon.rightPanelOpen({
@@ -291,6 +333,32 @@ class AppSvgIcon extends StatelessWidget {
     this.alignment = Alignment.center,
     this.semanticsLabel,
   }) : assetPath = AppSvgIcons.vaultSelected;
+
+  /// Factory constructor for Open Book icon
+  const AppSvgIcon.openBook({
+    super.key,
+    this.width,
+    this.height,
+    this.size,
+    this.color,
+    this.blendMode = BlendMode.srcIn,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.semanticsLabel,
+  }) : assetPath = AppSvgIcons.openBook;
+
+  /// Factory constructor for Long Coffee icon
+  const AppSvgIcon.longCoffee({
+    super.key,
+    this.width,
+    this.height,
+    this.size,
+    this.color,
+    this.blendMode = BlendMode.srcIn,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.semanticsLabel,
+  }) : assetPath = AppSvgIcons.longCoffee;
 
   @override
   Widget build(BuildContext context) {

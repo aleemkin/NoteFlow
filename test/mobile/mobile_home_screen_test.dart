@@ -45,7 +45,7 @@ void main() {
         expect(find.byType(MobileHomeScreen), findsOneWidget);
         expect(find.text('Noteflow'), findsWidgets);
         expect(find.text('Explore Sample Vault'), findsOneWidget);
-        expect(find.text('Choose Folder'), findsOneWidget);
+        expect(find.text('Open Local Folder'), findsOneWidget);
 
         // WindowChrome desktop widgets must NOT be present on mobile
         expect(find.text('Search...'), findsNothing);

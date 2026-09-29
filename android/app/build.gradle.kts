@@ -13,6 +13,16 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val envProperties = Properties()
+val envFile = rootProject.file("../.env")
+if (envFile.exists()) {
+    envProperties.load(FileInputStream(envFile))
+}
+
+val admobAppId: String = envProperties.getProperty("ADMOB_APP_ID")
+    ?: System.getenv("ADMOB_APP_ID")
+    ?: "ca-app-pub-3940256099942544~3347511713"
+
 android {
     namespace = "com.noteflow.notebook"
     compileSdk = flutter.compileSdkVersion
@@ -31,6 +41,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["admobAppId"] = admobAppId
     }
 
     signingConfigs {

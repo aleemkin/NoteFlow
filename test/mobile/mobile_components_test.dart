@@ -7,6 +7,7 @@ import 'package:noteflow/core/platform/platform.dart';
 import 'package:noteflow/features/vault/presentation/dialogs/vault_dialogs.dart';
 import 'package:noteflow/features/canvas/presentation/screens/drawing_editor_screen.dart';
 import 'package:noteflow/features/shell/presentation/mobile/mobile.dart';
+import 'package:noteflow/features/shell/presentation/mobile/widgets/recent_workspaces_card.dart';
 import 'package:noteflow/features/editor/presentation/widgets/editor_components/editor.dart';
 import 'package:noteflow/features/vault/vault.dart';
 
@@ -221,6 +222,7 @@ void main() {
         var openVaultCalled = false;
         var createVaultCalled = false;
         var sampleVaultCalled = false;
+        var contributeCalled = false;
 
         await tester.pumpWidget(
           ProviderScope(
@@ -241,6 +243,7 @@ void main() {
                   onOpenSampleVault: () => sampleVaultCalled = true,
                   onOpenVaultPath: (_) {},
                   onCloseVault: () => closeVaultCalled = true,
+                  onContribute: () => contributeCalled = true,
                 ),
               ),
             ),
@@ -255,27 +258,34 @@ void main() {
         expect(find.text('Drawings'), findsOneWidget);
         expect(find.text('Folders'), findsOneWidget);
 
-        // Clean grouped actions
+        // Clean grouped actions (WelcomeActionCards UI)
         expect(find.text('ACTIONS'), findsOneWidget);
-        expect(find.text('Open Local Vault'), findsOneWidget);
-        expect(find.text('Create New Vault'), findsOneWidget);
+        expect(find.text('Open Local Folder'), findsOneWidget);
+        expect(find.text('New Vault'), findsOneWidget);
         expect(find.text('Explore Sample Vault'), findsOneWidget);
 
         // Keyboard shortcuts button is removed
         expect(find.text('Shortcuts'), findsNothing);
         expect(find.byIcon(Icons.keyboard_outlined), findsNothing);
 
-        // Clean Close Vault button
-        await tester.scrollUntilVisible(find.text('Close Vault'), 200);
+        // Clean Action buttons row (Contribute & Close Vault)
+        await tester.scrollUntilVisible(find.text('Close Vault'), 500);
+        await tester.pumpAndSettle();
+        expect(find.text('Contribute'), findsOneWidget);
         expect(find.text('Close Vault'), findsOneWidget);
+
+        await tester.tap(find.text('Contribute'));
+        expect(contributeCalled, isTrue);
+
         await tester.tap(find.text('Close Vault'));
         expect(closeVaultCalled, isTrue);
 
         // Action callbacks
-        await tester.scrollUntilVisible(find.text('Open Local Vault'), -200);
-        await tester.tap(find.text('Open Local Vault'));
+        await tester.scrollUntilVisible(find.text('Open Local Folder'), -500);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Open Local Folder'));
         expect(openVaultCalled, isTrue);
-        await tester.tap(find.text('Create New Vault'));
+        await tester.tap(find.text('New Vault'));
         expect(createVaultCalled, isTrue);
         await tester.tap(find.text('Explore Sample Vault'));
         expect(sampleVaultCalled, isTrue);
@@ -344,6 +354,91 @@ void main() {
           customDisplayName: 'Sample Vault',
         );
         expect(manager.currentVault?.displayName, 'Sample Vault');
+      },
+    );
+
+    testWidgets(
+      'RecentWorkspacesCard renders without open/close buttons and supports swipe to remove',
+      (tester) async {
+        final recents = ['/path/to/AlphaVault', '/path/to/BetaVault'];
+        String? removedVault;
+        String? openedVault;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) {
+                  return RecentWorkspacesCard(
+                    recentVaults: recents,
+                    isLoading: false,
+                    currentVaultPath: '/path/to/AlphaVault',
+                    onOpenVaultPath: (path) => openedVault = path,
+                    onRemoveRecent: (path) {
+                      removedVault = path;
+                      setState(() {
+                        recents.remove(path);
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('AlphaVault'), findsOneWidget);
+        expect(find.text('BetaVault'), findsOneWidget);
+
+        // Neither arrow open icon button nor close icon button should be rendered
+        expect(find.byIcon(Icons.arrow_forward_rounded), findsNothing);
+        expect(find.byIcon(Icons.close_rounded), findsNothing);
+
+        // Tap BetaVault to open
+        await tester.tap(find.text('BetaVault'));
+        expect(openedVault, equals('/path/to/BetaVault'));
+
+        // Swipe BetaVault left to dismiss
+        await tester.drag(find.text('BetaVault'), const Offset(-500, 0));
+        await tester.pumpAndSettle();
+
+        expect(removedVault, equals('/path/to/BetaVault'));
+        expect(find.text('BetaVault'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'MobileWelcomeView recents list renders without open/close buttons and supports swipe to remove',
+      (tester) async {
+        final path = '${tempDir.path}/SwipeVault';
+        VaultStateStorage.testOverrideRecentPaths = [path];
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: MobileWelcomeView(
+                onOpenVault: () {},
+                onOpenVaultPath: (_) {},
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.scrollUntilVisible(find.text('SwipeVault'), 200);
+        expect(find.text('SwipeVault'), findsOneWidget);
+
+        // No arrow_forward_rounded open button or close_rounded button
+        expect(find.byIcon(Icons.arrow_forward_rounded), findsNothing);
+        expect(find.byIcon(Icons.close_rounded), findsNothing);
+
+        // Swipe left to remove
+        await tester.drag(find.text('SwipeVault'), const Offset(-500, 0));
+        await tester.pumpAndSettle();
+
+        expect(find.text('SwipeVault'), findsNothing);
+        expect(find.text('No Recent Workspaces'), findsOneWidget);
       },
     );
   });

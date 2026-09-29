@@ -234,7 +234,8 @@ class _ContinuousFolderSurfaceState extends State<ContinuousFolderSurface> {
               // Fallback for headless tests where contextMenuBuilder is not triggered by gestures
               if (_selectedText != null &&
                   _selectedText!.isNotEmpty &&
-                  !_contextMenuRendered)
+                  !_contextMenuRendered &&
+                  (Theme.of(context).platform == TargetPlatform.linux))
                 Positioned(
                   top: 8,
                   left: 16,

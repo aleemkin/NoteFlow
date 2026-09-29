@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:noteflow/core/theme/app_theme.dart';
 import 'package:noteflow/core/widgets/app_svg_icon.dart';
 
 /// Card displaying the active workspace name, active badge, and note/drawing/folder metrics.
@@ -31,19 +30,11 @@ class VaultOverviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(9),
-                ),
-                child: const Center(
-                  child: AppSvgIcon.folder(
-                    color: Color(0xFF58A6FF),
-                    width: 18,
-                    height: 18,
-                  ),
+              const Center(
+                child: AppSvgIcon.folder(
+                  color: Color(0xFF58A6FF),
+                  width: 18,
+                  height: 18,
                 ),
               ),
               const SizedBox(width: 12),
@@ -115,7 +106,7 @@ class VaultOverviewCard extends StatelessWidget {
                   iconColor: const Color(0xFF58A6FF),
                 ),
               ),
-              Container(width: 1, height: 22, color: const Color(0xFF21262D)),
+              Container(width: 1, height: 15, color: const Color(0xFF21262D)),
               Expanded(
                 child: _buildMetricItem(
                   count: '$drawingCount',
@@ -124,7 +115,7 @@ class VaultOverviewCard extends StatelessWidget {
                   iconColor: const Color(0xFFF472B6),
                 ),
               ),
-              Container(width: 1, height: 22, color: const Color(0xFF21262D)),
+              Container(width: 1, height: 15, color: const Color(0xFF21262D)),
               Expanded(
                 child: _buildMetricItem(
                   count: '$folderCount',

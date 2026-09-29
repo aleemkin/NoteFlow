@@ -31,12 +31,14 @@ mixin RecentVaultsMixin<T extends StatefulWidget> on State<T> {
 
   /// Removes a vault path from recent storage and updates UI state.
   Future<void> removeRecentVault(String path) async {
-    await VaultStateStorage.removeRecentVaultPath(path);
     if (mounted) {
       setState(() {
         recentVaults.remove(path);
       });
     }
+    try {
+      await VaultStateStorage.removeRecentVaultPath(path);
+    } catch (_) {}
   }
 
   /// Clears all recent vault paths from storage and resets state.

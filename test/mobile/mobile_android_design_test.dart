@@ -90,9 +90,12 @@ void main() {
         // Verify action tiles
         expect(
           find.byWidgetPredicate(
-            (w) => w is AppSvgIcon && w.assetPath == AppSvgIcons.openFolder,
+            (w) =>
+                w is AppSvgIcon &&
+                (w.assetPath == AppSvgIcons.folder ||
+                    w.assetPath == AppSvgIcons.openFolder),
           ),
-          findsOneWidget,
+          findsWidgets,
         );
         expect(
           find.byWidgetPredicate(
@@ -102,7 +105,10 @@ void main() {
         );
         expect(
           find.byWidgetPredicate(
-            (w) => w is AppSvgIcon && w.assetPath == AppSvgIcons.notes,
+            (w) =>
+                w is AppSvgIcon &&
+                (w.assetPath == AppSvgIcons.openBook ||
+                    w.assetPath == AppSvgIcons.notes),
           ),
           findsOneWidget,
         );
@@ -131,6 +137,18 @@ void main() {
         await tester.scrollUntilVisible(find.text('RecentVault'), 200);
         await tester.tap(find.text('RecentVault'));
         expect(openedRecentPath, equals(recentVaultPath));
+
+        // Verify "Buy me a coffee" support section below recent workspaces and before privacy policy
+        await tester.scrollUntilVisible(find.text('Buy me a coffee'), 200);
+        expect(find.text('Buy me a coffee'), findsOneWidget);
+
+        await tester.scrollUntilVisible(find.text('Privacy Policy'), 200);
+        expect(find.text('Privacy Policy'), findsOneWidget);
+
+        // Tap on Buy me a coffee section to open SupportScreen
+        await tester.tap(find.text('Buy me a coffee'));
+        await tester.pumpAndSettle();
+        expect(find.text('Support NoteFlow'), findsOneWidget);
       },
     );
     testWidgets(

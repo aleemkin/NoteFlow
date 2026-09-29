@@ -3,22 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:noteflow/app/app_providers.dart';
 import 'package:noteflow/core/widgets/app_svg_icon.dart';
+import 'package:noteflow/features/support/support.dart';
 import 'package:noteflow/features/vault/vault.dart';
 import 'widgets/vault_tab/vault_overview_card.dart';
-import 'widgets/vault_tab/vault_quick_actions_card.dart';
-import 'widgets/vault_tab/vault_recent_workspaces_card.dart';
+import 'widgets/workspace_action_cards.dart';
+import 'widgets/recent_workspaces_card.dart';
 
 /// Clean and minimal mobile Vault tab:
 /// - Active workspace overview with key metrics (notes, drawings, folders)
 /// - Grouped vault actions (Open, Create, Sample)
 /// - Recent workspaces with quick switch and remove
-/// - Clean workspace close action
+/// - Workspace actions (Contribute and Close Vault)
 class MobileVaultDetailsTab extends ConsumerStatefulWidget {
   final VoidCallback onOpenVault;
   final VoidCallback onCreateVault;
   final VoidCallback onOpenSampleVault;
   final ValueChanged<String> onOpenVaultPath;
   final VoidCallback onCloseVault;
+  final VoidCallback? onContribute;
 
   const MobileVaultDetailsTab({
     super.key,
@@ -27,6 +29,7 @@ class MobileVaultDetailsTab extends ConsumerStatefulWidget {
     required this.onOpenSampleVault,
     required this.onOpenVaultPath,
     required this.onCloseVault,
+    this.onContribute,
   });
 
   @override
@@ -107,7 +110,19 @@ class _MobileVaultDetailsTabState extends ConsumerState<MobileVaultDetailsTab>
           const SizedBox(height: 22),
 
           // 2. Grouped Actions Section
-          VaultQuickActionsCard(
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 8),
+            child: Text(
+              'ACTIONS',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF8B949E),
+                letterSpacing: 0.8,
+              ),
+            ),
+          ),
+          WorkspaceActionCards(
             onOpenVault: widget.onOpenVault,
             onCreateVault: widget.onCreateVault,
             onOpenSampleVault: widget.onOpenSampleVault,
@@ -116,7 +131,7 @@ class _MobileVaultDetailsTabState extends ConsumerState<MobileVaultDetailsTab>
           const SizedBox(height: 24),
 
           // 3. Recent Workspaces Section
-          VaultRecentWorkspacesCard(
+          RecentWorkspacesCard(
             recentVaults: recentVaults,
             isLoading: loadingRecents,
             currentVaultPath: vault?.rootUri.path,
@@ -126,35 +141,74 @@ class _MobileVaultDetailsTabState extends ConsumerState<MobileVaultDetailsTab>
 
           const SizedBox(height: 28),
 
-          // 4. Clean Close Vault Button (No Shortcuts on Mobile)
-          Center(
-            child: TextButton.icon(
-              icon: const Icon(
-                Icons.power_settings_new_rounded,
-                size: 16,
-                color: Color(0xFFF85149),
+          // 4. Action Buttons (Contribute & Close Vault)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              TextButton.icon(
+                icon: const AppSvgIcon.longCoffee(
+                  size: 16,
+                  color: Color(0xFFF59E0B),
+                ),
+                label: const Text(
+                  'Contribute',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFF59E0B),
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(color: Color(0x33F59E0B)),
+                  ),
+                  backgroundColor: const Color(0x12F59E0B),
+                ),
+                onPressed: () {
+                  if (widget.onContribute != null) {
+                    widget.onContribute!();
+                  } else {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SupportScreen(),
+                      ),
+                    );
+                  }
+                },
               ),
-              label: const Text(
-                'Close Vault',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+              TextButton.icon(
+                icon: const Icon(
+                  Icons.power_settings_new_rounded,
+                  size: 16,
                   color: Color(0xFFF85149),
                 ),
-              ),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
+                label: const Text(
+                  'Close Vault',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFF85149),
+                  ),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: const BorderSide(color: Color(0x33F85149)),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(color: Color(0x33F85149)),
+                  ),
+                  backgroundColor: const Color(0x12F85149),
                 ),
-                backgroundColor: const Color(0x12F85149),
+                onPressed: widget.onCloseVault,
               ),
-              onPressed: widget.onCloseVault,
-            ),
+            ],
           ),
 
           const SizedBox(height: 36),

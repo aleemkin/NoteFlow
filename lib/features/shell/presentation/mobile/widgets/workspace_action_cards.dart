@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:noteflow/core/widgets/app_svg_icon.dart';
 
-/// Primary action section on the mobile welcome view (Open Folder, New Vault, Sample Vault).
-class WelcomeActionSection extends StatelessWidget {
-  const WelcomeActionSection({
+/// Primary grouped actions card for workspace management (Open Folder, New Vault, Sample Vault).
+///
+/// Shared across the mobile welcome view and vault details tab.
+class WorkspaceActionCards extends StatelessWidget {
+  const WorkspaceActionCards({
     super.key,
     required this.onOpenVault,
     this.onCreateVault,
@@ -26,8 +28,7 @@ class WelcomeActionSection extends StatelessWidget {
         children: [
           // Primary: Open Local Folder
           _buildActionTile(
-            icon: const AppSvgIcon.openFolder(width: 20, height: 20),
-            iconBg: const Color(0xFFA78BFA).withValues(alpha: 0.12),
+            icon: const AppSvgIcon.folder(size: 24),
             title: 'Open Local Folder',
             subtitle: 'Choose an existing notebook folder',
             isPrimary: true,
@@ -38,8 +39,7 @@ class WelcomeActionSection extends StatelessWidget {
           // Secondary: Create New Vault
           if (onCreateVault != null)
             _buildActionTile(
-              icon: const AppSvgIcon.newFolder(width: 20, height: 20),
-              iconBg: const Color(0xFFA78BFA).withValues(alpha: 0.12),
+              icon: const AppSvgIcon.newFolder(size: 24),
               title: 'New Vault',
               subtitle: 'Create a brand new empty vault',
               onTap: onCreateVault!,
@@ -49,8 +49,7 @@ class WelcomeActionSection extends StatelessWidget {
           // Tertiary: Explore Sample Vault
           if (onOpenSampleVault != null)
             _buildActionTile(
-              icon: const AppSvgIcon.notes(width: 20, height: 20),
-              iconBg: const Color(0xFFA78BFA).withValues(alpha: 0.12),
+              icon: const AppSvgIcon.openBook(size: 24),
               title: 'Explore Sample Vault',
               subtitle: 'Try notes, tags, and drawing canvas',
               onTap: onOpenSampleVault!,
@@ -62,7 +61,6 @@ class WelcomeActionSection extends StatelessWidget {
 
   Widget _buildActionTile({
     required Widget icon,
-    required Color iconBg,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
@@ -80,15 +78,7 @@ class WelcomeActionSection extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
               child: Row(
                 children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: iconBg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(child: icon),
-                  ),
+                  SizedBox(width: 38, height: 38, child: Center(child: icon)),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(

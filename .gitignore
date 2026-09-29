@@ -62,4 +62,9 @@ key.properties
 **/*.jks
 **/*.keystore
 
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
 
