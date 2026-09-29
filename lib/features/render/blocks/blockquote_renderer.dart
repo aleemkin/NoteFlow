@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:noteflow/core/theme/app_theme.dart';
 import 'package:noteflow/features/document/domain/models.dart';
+import 'package:noteflow/features/document/parsing/markdown_adapter.dart';
 import 'inline_content_renderer.dart';
 
 /// Renders a blockquote with subtle accent border and rich inline styling.
@@ -20,6 +21,10 @@ class BlockquoteRenderer extends StatelessWidget {
       color: AppColors.textSecondary,
     );
 
+    final nodes = (inlineContent != null && inlineContent!.isNotEmpty)
+        ? inlineContent!
+        : MarkdownAdapter.parseInline(text);
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.only(left: 14, top: 6, bottom: 6, right: 12),
@@ -30,17 +35,15 @@ class BlockquoteRenderer extends StatelessWidget {
           left: BorderSide(color: AppColors.primary, width: 3.0),
         ),
       ),
-      child: (inlineContent != null && inlineContent!.isNotEmpty)
-          ? Text.rich(
-              TextSpan(
-                style: style,
-                children: InlineContentRenderer.buildSpans(
-                  inlineContent!,
-                  style,
-                ),
-              ),
-            )
-          : Text(text, style: style),
+      child: Text.rich(
+        TextSpan(
+          style: style,
+          children: InlineContentRenderer.buildSpans(
+            nodes,
+            style,
+          ),
+        ),
+      ),
     );
   }
 }

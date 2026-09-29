@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:noteflow/core/theme/app_theme.dart';
 import 'package:noteflow/features/document/domain/models.dart';
+import 'package:noteflow/features/document/parsing/markdown_adapter.dart';
 import 'inline_content_renderer.dart';
 
 /// Renders a list item (bullet, ordered number, or interactive/styled task checkbox) with rich inline styling.
@@ -66,17 +67,19 @@ class ListItemRenderer extends StatelessWidget {
       );
     }
 
-    final contentWidget = (inlineContent != null && inlineContent!.isNotEmpty)
-        ? Text.rich(
-            TextSpan(
-              style: baseStyle,
-              children: InlineContentRenderer.buildSpans(
-                inlineContent!,
-                baseStyle,
-              ),
-            ),
-          )
-        : Text(text, style: baseStyle);
+    final nodes = (inlineContent != null && inlineContent!.isNotEmpty)
+        ? inlineContent!
+        : MarkdownAdapter.parseInline(text);
+
+    final contentWidget = Text.rich(
+      TextSpan(
+        style: baseStyle,
+        children: InlineContentRenderer.buildSpans(
+          nodes,
+          baseStyle,
+        ),
+      ),
+    );
 
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),

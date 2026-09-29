@@ -62,6 +62,21 @@ final class InlineStrikethrough extends InlineNode {
   String get plainText => children.map((n) => n.plainText).join();
 }
 
+final class InlineUnderline extends InlineNode {
+  final List<InlineNode> children;
+  const InlineUnderline(this.children);
+
+  @override
+  String get plainText => children.map((n) => n.plainText).join();
+}
+
+final class InlineLineBreak extends InlineNode {
+  const InlineLineBreak();
+
+  @override
+  String get plainText => '\n';
+}
+
 final class InlineImage extends InlineNode {
   final String destination;
   final String? alt;

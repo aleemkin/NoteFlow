@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:noteflow/core/theme/app_theme.dart';
 import 'package:noteflow/features/document/domain/models.dart';
+import 'package:noteflow/features/document/parsing/markdown_adapter.dart';
 import 'inline_content_renderer.dart';
 
 /// Renders a paragraph block in readable high-contrast typography with rich inline styling.
@@ -30,24 +31,21 @@ class ParagraphBlockRenderer extends StatelessWidget {
       letterSpacing: 0.1,
     );
 
-    if (inlineContent != null && inlineContent!.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 12.0),
-        child: Text.rich(
-          TextSpan(
-            style: baseStyle,
-            children: InlineContentRenderer.buildSpans(
-              inlineContent!,
-              baseStyle,
-            ),
-          ),
-        ),
-      );
-    }
+    final nodes = (inlineContent != null && inlineContent!.isNotEmpty)
+        ? inlineContent!
+        : MarkdownAdapter.parseInline(text);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: Text(text, style: baseStyle),
+      child: Text.rich(
+        TextSpan(
+          style: baseStyle,
+          children: InlineContentRenderer.buildSpans(
+            nodes,
+            baseStyle,
+          ),
+        ),
+      ),
     );
   }
 }

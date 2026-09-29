@@ -12,24 +12,46 @@ class InlineContentRenderer {
       return TextSpan(text: node.text, style: baseStyle);
     }
     if (node is InlineStrong) {
-      final strongStyle = baseStyle.copyWith(
-        fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
-      );
+      final baseWeight = baseStyle.fontWeight ?? FontWeight.normal;
+      final strongWeight = switch (baseWeight) {
+        FontWeight.w800 || FontWeight.w900 => FontWeight.w900,
+        FontWeight.w700 => FontWeight.w900,
+        FontWeight.w600 => FontWeight.w800,
+        _ => FontWeight.w700,
+      };
+      final strongStyle = baseStyle.copyWith(fontWeight: strongWeight);
       return TextSpan(
         style: strongStyle,
         children: node.children.map((c) => buildSpan(c, strongStyle)).toList(),
       );
     }
     if (node is InlineEmphasis) {
+      final isItalic = baseStyle.fontStyle == FontStyle.italic;
       final emStyle = baseStyle.copyWith(
-        fontStyle: FontStyle.italic,
-        color: AppColors.textPrimary,
+        fontStyle: isItalic ? FontStyle.normal : FontStyle.italic,
+        fontWeight: isItalic &&
+                (baseStyle.fontWeight == null ||
+                    baseStyle.fontWeight == FontWeight.normal)
+            ? FontWeight.w600
+            : null,
       );
       return TextSpan(
         style: emStyle,
         children: node.children.map((c) => buildSpan(c, emStyle)).toList(),
       );
+    }
+    if (node is InlineUnderline) {
+      final decoration = baseStyle.decoration != null
+          ? TextDecoration.combine([baseStyle.decoration!, TextDecoration.underline])
+          : TextDecoration.underline;
+      final underlineStyle = baseStyle.copyWith(decoration: decoration);
+      return TextSpan(
+        style: underlineStyle,
+        children: node.children.map((c) => buildSpan(c, underlineStyle)).toList(),
+      );
+    }
+    if (node is InlineLineBreak) {
+      return const TextSpan(text: '\n');
     }
     if (node is InlineCode) {
       return WidgetSpan(
@@ -65,9 +87,13 @@ class InlineContentRenderer {
       );
     }
     if (node is InlineStrikethrough) {
+      final decoration = baseStyle.decoration != null
+          ? TextDecoration.combine(
+              [baseStyle.decoration!, TextDecoration.lineThrough])
+          : TextDecoration.lineThrough;
       final strikeStyle = baseStyle.copyWith(
-        decoration: TextDecoration.lineThrough,
-        color: AppColors.textMuted,
+        decoration: decoration,
+        color: baseStyle.color?.withValues(alpha: 0.7) ?? AppColors.textMuted,
       );
       return TextSpan(
         style: strikeStyle,
@@ -108,8 +134,14 @@ class InlineContentRenderer {
       );
     }
     if (node is InlineMarkSpan) {
+      final Color bg;
+      if (node.markType == 'highlight' || node.markType == 'mark') {
+        bg = const Color(0xFFF9D423).withValues(alpha: 0.28);
+      } else {
+        bg = AppColors.primary.withValues(alpha: 0.18);
+      }
       final markStyle = baseStyle.copyWith(
-        backgroundColor: AppColors.primary.withValues(alpha: 0.18),
+        backgroundColor: bg,
       );
       return TextSpan(
         style: markStyle,

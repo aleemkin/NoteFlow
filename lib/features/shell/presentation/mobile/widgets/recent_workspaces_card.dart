@@ -52,11 +52,14 @@ class RecentWorkspacesCard extends StatefulWidget {
       }
     }
 
-    // Android primary shared storage: /storage/emulated/0/...
-    const androidStorage = '/storage/emulated/0';
-    if (path.startsWith(androidStorage)) {
-      final sub = path.substring(androidStorage.length);
-      final segments = sub.split('/').where((s) => s.isNotEmpty).toList();
+    // Android primary shared storage: /storage/emulated/0/..., emulator/0/..., etc.
+    final androidPrefix = RegExp(
+      r'^(?:/?storage/)?(?:emulated|emulator)/\d+/?|^/?(?:emulated|emulator)/\d+/?|^/storage/self/primary/?|^/sdcard/?',
+      caseSensitive: false,
+    );
+    if (androidPrefix.hasMatch(path)) {
+      final stripped = path.replaceFirst(androidPrefix, '');
+      final segments = stripped.split('/').where((s) => s.isNotEmpty).toList();
       if (segments.isEmpty) return 'Device Storage';
       return segments.join(' / ');
     }

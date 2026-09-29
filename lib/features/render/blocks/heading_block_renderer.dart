@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:noteflow/core/theme/app_theme.dart';
 import 'package:noteflow/features/document/domain/models.dart';
+import 'package:noteflow/features/document/parsing/markdown_adapter.dart';
 import 'inline_content_renderer.dart';
 
 /// Renders a heading block (H1-H6) with crisp typography hierarchy and inline styling.
@@ -38,21 +39,18 @@ class HeadingBlockRenderer extends StatelessWidget {
       letterSpacing: level == 1 ? -0.5 : -0.2,
     );
 
-    if (inlineContent != null && inlineContent!.isNotEmpty) {
-      return Padding(
-        padding: EdgeInsets.only(top: level <= 2 ? 24.0 : 16.0, bottom: 8.0),
-        child: Text.rich(
-          TextSpan(
-            style: style,
-            children: InlineContentRenderer.buildSpans(inlineContent!, style),
-          ),
-        ),
-      );
-    }
+    final nodes = (inlineContent != null && inlineContent!.isNotEmpty)
+        ? inlineContent!
+        : MarkdownAdapter.parseInline(text);
 
     return Padding(
       padding: EdgeInsets.only(top: level <= 2 ? 24.0 : 16.0, bottom: 8.0),
-      child: Text(text, style: style),
+      child: Text.rich(
+        TextSpan(
+          style: style,
+          children: InlineContentRenderer.buildSpans(nodes, style),
+        ),
+      ),
     );
   }
 }

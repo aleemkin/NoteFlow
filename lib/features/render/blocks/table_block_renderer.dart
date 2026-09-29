@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:noteflow/core/theme/app_theme.dart';
 import 'package:noteflow/features/document/domain/models.dart';
+import 'package:noteflow/features/document/parsing/markdown_adapter.dart';
+import 'inline_content_renderer.dart';
 
 /// Renders a Markdown table with horizontal scrolling, dark styling, zebra rows, and aligned columns.
 class TableBlockRenderer extends StatelessWidget {
@@ -68,21 +70,33 @@ class TableBlockRenderer extends StatelessWidget {
                   ),
                   children: [
                     for (var col = 0; col < columnCount; col++)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        alignment: _toAlignment(col),
-                        child: Text(
-                          col < table.headers.length ? table.headers[col] : '',
-                          textAlign: _toTextAlign(col),
-                          style: const TextStyle(
+                      Builder(
+                        builder: (context) {
+                          final headerText = col < table.headers.length ? table.headers[col] : '';
+                          const headerStyle = TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
-                          ),
-                        ),
+                          );
+                          final inlineNodes = MarkdownAdapter.parseInline(headerText);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            alignment: _toAlignment(col),
+                            child: Text.rich(
+                              TextSpan(
+                                style: headerStyle,
+                                children: InlineContentRenderer.buildSpans(
+                                  inlineNodes,
+                                  headerStyle,
+                                ),
+                              ),
+                              textAlign: _toTextAlign(col),
+                            ),
+                          );
+                        },
                       ),
                   ],
                 ),
@@ -95,23 +109,35 @@ class TableBlockRenderer extends StatelessWidget {
                   ),
                   children: [
                     for (var col = 0; col < columnCount; col++)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 9,
-                        ),
-                        alignment: _toAlignment(col),
-                        child: Text(
-                          col < table.rows[rowIdx].length
+                      Builder(
+                        builder: (context) {
+                          final cellText = col < table.rows[rowIdx].length
                               ? table.rows[rowIdx][col]
-                              : '',
-                          textAlign: _toTextAlign(col),
-                          style: const TextStyle(
+                              : '';
+                          const cellStyle = TextStyle(
                             fontSize: 14.0,
                             height: 1.4,
                             color: AppColors.textPrimary,
-                          ),
-                        ),
+                          );
+                          final inlineNodes = MarkdownAdapter.parseInline(cellText);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 9,
+                            ),
+                            alignment: _toAlignment(col),
+                            child: Text.rich(
+                              TextSpan(
+                                style: cellStyle,
+                                children: InlineContentRenderer.buildSpans(
+                                  inlineNodes,
+                                  cellStyle,
+                                ),
+                              ),
+                              textAlign: _toTextAlign(col),
+                            ),
+                          );
+                        },
                       ),
                   ],
                 ),
