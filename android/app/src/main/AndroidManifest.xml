@@ -12,6 +12,7 @@
         android:label="Noteflow"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:hardwareAccelerated="true"
         android:requestLegacyExternalStorage="true">
         <meta-data
