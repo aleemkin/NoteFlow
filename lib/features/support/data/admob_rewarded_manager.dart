@@ -53,6 +53,13 @@ class AdmobRewardedManager {
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
+          try {
+            ad.setImmersiveMode(true);
+          } catch (e) {
+            debugPrint(
+              'AdmobRewardedManager: Failed to set immersive mode on preload: $e',
+            );
+          }
           _rewardedAd = ad;
           _isAdLoading = false;
           _lastAdError = null;
@@ -80,6 +87,13 @@ class AdmobRewardedManager {
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
+          try {
+            ad.setImmersiveMode(true);
+          } catch (e) {
+            debugPrint(
+              'AdmobRewardedManager: Failed to set immersive mode on load: $e',
+            );
+          }
           _rewardedAd = ad;
           _isAdLoading = false;
           _lastAdError = null;
@@ -145,6 +159,14 @@ class AdmobRewardedManager {
         if (!completer.isCompleted) completer.complete(false);
       },
     );
+
+    try {
+      await _rewardedAd!.setImmersiveMode(true);
+    } catch (e) {
+      debugPrint(
+        'AdmobRewardedManager: Failed to set immersive mode before show: $e',
+      );
+    }
 
     await _rewardedAd!.show(
       onUserEarnedReward: (ad, reward) {
